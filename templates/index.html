@@ -1,0 +1,435 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="fr">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'favicon.png' %}" rel="icon" type="image/png">
+    <title>LITReview</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'assets/css/icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/uikit.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/tailwind.css' %}">
+</head>
+
+<body>
+
+            <header>
+                <div class="header_inner">
+                    <form action="/search" method="get">
+                    {% csrf_token %}    
+                    <div class="left-side">
+                        <!-- Logo -->
+                        <div id="logo" class=" uk-hidden@s">
+                            <a href="index.html">
+                                <b><h1 style="text-transform: uppercase;">LITReview</h1></b>
+                            </a>
+                        </div>
+
+                            <input type="text" name="username" placeholder="Rechercher un utilisateur...">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            <button type="submit"><i class="fa fa-search fa-1x"></i></button>
+                    </div>
+                    </form>
+
+                    <div class="right-side lg:pr-4">
+                         <!-- upload -->
+                        <a href="#"
+                            class="bg-pink-500 flex font-bold hidden hover:bg-pink-600 hover:text-white inline-block items-center lg:block max-h-10 mr-4 px-4 py-2 rounded shado text-white">
+                            <ion-icon name="add-circle" class="-mb-1
+                             mr-1 opacity-90 text-xl uilus-circle"></ion-icon> Créer une critique
+                        </a>
+                         <!-- créer une critique dropdown box -->
+                        <div uk-dropdown="pos: top-right;mode:click ; animation: uk-animation-slide-bottom-small" class="header_dropdown">
+
+                            <div class="flex justify-center flex-center text-center">
+    
+                                <div class="flex flex-col choose-upload text-center">
+                                   
+                                    <div class="flex flex-col h-48 items-center justify-center relative w-full rounded-lg">
+                                        <img id="image-preview" src="#" alt="Aperçu de l'image" class="mt-2" style="display: none; max-width: 100%; max-height: 200px;">
+                                        <br>
+                                    </div>
+                                    <!-- formulaire pour créer une critique -->
+                                    <form action="upload" method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    
+                                    <div class="bg-gray-50  border-b border-gray-100 flex items-baseline justify-between py-4 px-6 ">
+                                        <h2 class="font-semibold text-lg">Informations du post</h2>
+                                    </div>
+                                    
+                                    <div>
+                                        <input type="file" name="image_upload" id="image-upload" class="hidden" required>
+                                        <input type="text" name="title" placeholder="Titre du livre..." required>
+                                        <textarea class="button soft-warning small" name="caption" placeholder="Commentaire..."></textarea>
+                                        <br>
+                                        <label for="image-upload" class="bg-blue-700 px-4 py-2 text-white rounded cursor-pointer">Choisir une image</label>
+                                        
+                                        <div class="px-4 py-3 -mx-5 -mb-4 mt-5 border-t text-sm">
+                                            <div class="bg-gray-50  border-b border-gray-100 flex items-baseline justify-between py-4 px-6 ">
+                                                <h2 class="font-semibold text-lg">Informations de la critique</h2>
+                                            </div>
+                                            <input type="text" name="title_review" placeholder="Titre de la critique...">
+                                            <br>
+                                            <h2 class="font-semibold text-lg">Note :</h2>
+                                            <div class="flex items-center space-x-4">
+                                                <label class="inline-flex items-center">
+                                                  <input type="radio" class="form-radio" name="radio" value="1">
+                                                  <span class="ml-2">1</span>
+                                                </label>
+                                                <label class="inline-flex items-center ml-6">
+                                                  <input type="radio" class="form-radio" name="radio" value="2">
+                                                  <span class="ml-2">2</span>
+                                                </label>
+                                                <label class="inline-flex items-center ml-6">
+                                                  <input type="radio" class="form-radio" name="radio" value="3">
+                                                  <span class="ml-2">3</span>
+                                                </label>
+                                                <label class="inline-flex items-center ml-6">
+                                                    <input type="radio" class="form-radio" name="radio" value="4">
+                                                    <span class="ml-2">4</span>
+                                                </label>
+                                                <label class="inline-flex items-center ml-6">
+                                                    <input type="radio" class="form-radio" name="radio" value="5">
+                                                    <span class="ml-2">5</span>
+                                                </label>
+                                            </div>
+                                            <textarea class="button soft-warning small" name="commentaire" placeholder="Commentaire..."></textarea>
+                                        </div>
+                                        <br>
+                                        <button class="button bg-blue-700" type="submit">Envoyer</button>
+                                    </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gestion de la demande de critique -->
+                        <div class="right-side lg:pr-4">
+                            <!-- upload -->
+                           <a href="#"
+                               class="bg-pink-500 flex font-bold hidden hover:bg-pink-600 hover:text-white inline-block items-center lg:block max-h-10 mr-4 px-4 py-2 rounded shado text-white">
+                               <ion-icon name="add-circle" class="-mb-1
+                                mr-1 opacity-90 text-xl uilus-circle"></ion-icon> Demander une critique
+                           </a>
+                            <!-- demander une critique dropdown box -->
+                           <div uk-dropdown="pos: top-right;mode:click ; animation: uk-animation-slide-bottom-small" class="header_dropdown">
+   
+                               
+                               <div class="flex justify-center flex-center text-center">
+       
+                                   <div class="flex flex-col choose-upload text-center">
+                                      
+                                       <div class="flex flex-col h-48 items-center justify-center relative w-full rounded-lg">
+                                           <img id="image-preview-request" src="#" alt="Aperçu de l'image" class="mt-2" style="display: none; max-width: 100%; max-height: 200px;">
+                                           <br>
+                                       </div>
+                                       <!-- formulaire pour demander une critique -->
+                                       <form action="upload_request" method="POST" enctype="multipart/form-data">
+                                       {% csrf_token %}
+                                       
+                                       <div class="bg-gray-50  border-b border-gray-100 flex items-baseline justify-between py-4 px-6 ">
+                                           <h2 class="font-semibold text-lg">Informations du post</h2>
+                                       </div>
+                                       
+                                       <div>
+                                           <input type="file" name="image_upload" id="image-upload-request" class="hidden" required>
+                                           <input type="text" name="title" placeholder="Titre du livre..." required>
+                                           <textarea class="button soft-warning small" name="caption" placeholder="Commentaire..."></textarea>
+                                           <br>
+                                           <label for="image-upload-request" class="bg-blue-700 px-4 py-2 text-white rounded cursor-pointer">Choisir une image</label>
+                                           <br>
+                                           <button class="button bg-blue-700" type="submit">Envoyer</button>
+                                       </div>
+                                       </form>
+                                   </div>
+                               </div>
+                           </div>
+
+                        <!-- menu profil -->
+
+                        <a href="#">
+                            <img src="{{user_profile.profileimg.url}}" class="header-avatar" alt="">
+                        </a>
+                        <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
+                            <ul>
+                                <li><a href="/profile/{{request.user.username}}"> Mon profil </a></li>
+                                <li><a href="/settings"> Réglages du compte </a> </li>
+                                <li><a href="/logout"> Se déconnecter</a></li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </header>
+
+            <div class="container m-auto">
+
+                <div class="lg:flex justify-center lg:space-x-10 lg:space-y-0 space-y-5">
+
+                    <!-- Flux des critiques -->
+                    <div class="space-y-5 flex-shrink-0 lg:w-7/12">
+
+                        {% for post, reviews in post_reviews.items %}
+                        <div class="bg-white shadow rounded-md  -mx-2 lg:mx-0">
+    
+                            <!-- header du post -->
+                            <div class="flex justify-between items-center px-4 py-3">
+                                <div class="flex flex-1 items-center space-x-4">
+                                    <span>Post de <b><a href="/profile/{{post.user}}">{{post.user}}</a></b> le {{post.created_at|date:"d F Y" }} à {{post.created_at|time:"H:i" }}</span>
+                                </div>
+                                
+                            {% if post.user_id_id ==  user_profile.user_id %}
+                            <div>
+                                <a href="#"> <i class="icon-feather-more-horizontal text-2xl hover:bg-gray-200 rounded-full p-2 transition -mr-1 "></i> </a>
+                                <div class="bg-white w-56 shadow-md mx-auto p-2 mt-12 rounded-md text-gray-500 hidden text-base border border-gray-100" uk-drop="mode: hover;pos: top-right">
+                                  <ul class="space-y-1">
+                                    <li> 
+                                      <!-- Lien "Modifier" -->
+                                      <a href="#"  data-post-id="{{ post.id }}" onclick="showEditPostModal(this.getAttribute('data-post-id'))">
+                                        <i class="uil-edit-alt mr-1"></i> Modifier
+                                    </a>
+                                    </li>
+                                    
+                                    <li> 
+                                      <a href="#" class="flex items-center px-3 py-2 text-red-500 hover:bg-red-100 hover:text-red-500 rounded-md" onclick="confirmPostDelete('{{ post.id }}')">
+                                        <i class="uil-trash-alt mr-1"></i> Supprimer
+                                      </a> 
+                                    </li>
+                                  </ul>
+                                </div>
+                            </div>
+                            {% endif %}
+                            </div>
+
+
+                            <!-- Modal de modification d'un post -->
+                            <div id="{{ post.id }}" class="bg-white shadow-md mx-auto p-2 mt-12 rounded-md text-gray-500 hidden text-base border border-gray-100 modal-width">
+                                <form action="{% url 'update_post' post_id=post.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <!-- Champs du formulaire pour la modification du post -->
+                                    <input type="text" name="title" value="{{ post.title }}" class="text-lg font-bold text-gray-800 mb-4">
+                                    <textarea name="caption" class="text-sm text-gray-500">{{ post.caption }}</textarea>
+                                    <!-- Autres champs du formulaire à ajouter selon vos besoins -->
+                                    <button type="submit" class="button bg-blue-700">Modifier</button>
+                                </form>
+                                <button onclick="closeEditPostModal('{{ post.id }}')">Fermer</button>
+                            </div>
+
+                            <div class="py-3 px-4 space-y-3">
+                                <p>
+                                    <span class="block capitalize font-semibold ">{{post.title}}</span>
+                                </p>
+                            </div>
+
+                            <div uk-lightbox>
+                                <a href="{{post.image.url}}">
+                                    <img src="{{post.image.url}}" alt="" class="mx-auto">
+                                </a>
+                            </div>
+                            <div class="py-3 px-4 space-y-3"> 
+                                <div class="flex items-center justify-between space-x-4 lg:font-bold">
+                                    <div>
+                                        <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
+                                            <div class="p-2 rounded-full text-black">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="25" height="25" class="">
+                                                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                                                </svg>
+                                                {% if post.no_of_likes == 0 %}
+                                                    <p>Aucun like</p>
+                                                {% elif post.no_of_likes == 1 %}
+                                                    <p>Aimé par {{post.no_of_likes}} personne</p>
+                                                {% else %}
+                                                    <p>Aimé par {{post.no_of_likes}} personnes</p>
+                                                {% endif %}
+                                            </div>
+                                        </a>
+                                    </div>
+                                    {% if not reviews.has_user_reviewed %}
+                                        <a href="#" class="bg-pink-500 flex font-bold hidden hover:bg-pink-600 hover:text-white inline-block items-center lg:block max-h-10 mr-4 px-4 py-2 rounded shadow text-white">
+                                            <ion-icon name="add-circle" class="-mb-1 mr-1 opacity-90 text-xl uilus-circle"></ion-icon>
+                                            Créer une critique
+                                        </a>
+                                        <!-- créer une critique à partir d'une demande ; dropdown box -->
+                                        <div uk-dropdown="pos: top-right;mode:click ; animation: uk-animation-slide-bottom-small" class="header_dropdown uk-dropdown-bottom">
+
+
+                                            
+                                            <div class="flex justify-center flex-center text-center">
+                    
+                                                <div class="flex flex-col choose-upload text-center">
+                                                    <!-- formulaire pour créer une critique à partir d'une demande -->
+                                                    <form action="add_review" method="POST" enctype="multipart/form-data">
+                                                    {% csrf_token %}                                                 
+                                                    <div>
+                                                        
+                                                        
+                                                        <div class="px-4 py-3 -mx-5 -mb-4 mt-5 text-sm">
+                                                            <div class="bg-gray-50  border-b border-gray-100 flex items-baseline justify-between py-4 px-6 ">
+                                                                <h2 class="font-semibold text-lg">Informations de la critique</h2>
+                                                            </div>
+                                                            <input type="text" name="title_review" placeholder="Titre de la critique...">
+                                                            <br>
+                                                            <input type="hidden" name="post_to_add_review" value="{{ post.id }}">
+                                                            <h2 class="font-semibold text-lg">Note :</h2>
+                                                            <div class="flex items-center space-x-4">
+                                                                <label class="inline-flex items-center">
+                                                                <input type="radio" class="form-radio" name="radio" value="1">
+                                                                <span class="ml-2">1</span>
+                                                                </label>
+                                                                <label class="inline-flex items-center ml-6">
+                                                                <input type="radio" class="form-radio" name="radio" value="2">
+                                                                <span class="ml-2">2</span>
+                                                                </label>
+                                                                <label class="inline-flex items-center ml-6">
+                                                                <input type="radio" class="form-radio" name="radio" value="3">
+                                                                <span class="ml-2">3</span>
+                                                                </label>
+                                                                <label class="inline-flex items-center ml-6">
+                                                                    <input type="radio" class="form-radio" name="radio" value="4">
+                                                                    <span class="ml-2">4</span>
+                                                                </label>
+                                                                <label class="inline-flex items-center ml-6">
+                                                                    <input type="radio" class="form-radio" name="radio" value="5">
+                                                                    <span class="ml-2">5</span>
+                                                                </label>
+                                                            </div>
+                                                            <textarea class="button soft-warning small" name="commentaire" placeholder="Commentaire..."></textarea>
+                                                        </div>
+                                                        <br>
+                                                        <button class="button bg-blue-700" type="submit">Envoyer</button>
+                                                    </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                            
+                                <p>
+                                    {{post.caption}}
+                                </p>
+                            </div>
+                            
+
+                            <!-- affichage des reviews -->
+                            {% for review in reviews.reviews %}
+                            <div class="border-t py-3 px-4 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <a href="/profile/{{ review.user.username }}">
+                                            <strong>Critique de {{ review.user.username }} le {{ review.time_created|date:"d F Y" }} à {{ review.time_created|time:"H:i" }}</strong>
+                                        </a>
+                                    </div>
+                                    {% if review.user_id ==  user_profile.user_id %}
+                                    <div>
+                                        <a href="#">
+                                            <i class="icon-feather-more-horizontal text-2xl hover:bg-gray-200 rounded-full p-2 transition -mr-1"></i>
+                                        </a>
+                                        <div class="bg-white w-56 shadow-md mx-auto p-2 mt-12 rounded-md text-gray-500 hidden text-base border border-gray-100" uk-drop="mode: hover;pos: top-right">
+                                            <ul class="space-y-1">
+                                                <li>
+                                                    <!-- Lien "Modifier" -->
+                                                    <a href="#" data-review-id="{{ review.id }}" onclick="showEditReviewModal(this.getAttribute('data-review-id'))">
+                                                        <i class="uil-edit-alt mr-1"></i> Modifier
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a href="#" class="flex items-center px-3 py-2 text-red-500 hover:bg-red-100 hover:text-red-500 rounded-md" onclick="confirmReviewDelete('{{ review.id }}')">
+                                                        <i class="uil-trash-alt mr-1"></i> Supprimer
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex items-center space-x-1 ml-2">
+                                    <div>
+                                        <p>{{ review.headline }}</p>
+                                    </div> &nbsp; &nbsp;
+                                    {% for color in review.get_stars %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="{{ color }}" class="w-4 h-4">
+                                        <path d="M10 1l2.928 6.426 6.319.918-4.587 4.716 1.085 6.305-5.745-3.179-5.745 3.179 1.085-6.305L.753 8.344l6.319-.918L10 1z" />
+                                    </svg>
+                                    {% endfor %}
+                                </div>
+                                <div class="flex">
+                                    <div class="text-gray-700 py-2 px-3 rounded-md bg-gray-100 h-full relative lg:ml-5 ml-2 lg:mr-20 mb-3">
+                                        <p class="leading-6">{{ review.body }} </p>
+                                        <div class="absolute w-3 h-3 top-3 -left-1 bg-gray-100 transform rotate-45 "></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Modal de modification d'une review -->
+                            <div id="{{ review.id }}" class="bg-white shadow-md mx-auto p-2 mt-12 rounded-md text-gray-500 hidden text-base border border-gray-100 modal-width">
+                                <form action="{% url 'update_review' review_id=review.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <!-- Champs du formulaire pour la modification d'une review -->
+                                    <input type="text" name="headline" value="{{ review.headline }}" class="text-lg font-bold text-gray-800 mb-4">
+                                    <h2 class="font-semibold text-lg">Note :</h2>
+                                        <div class="flex items-center space-x-4">
+                                            {% for i in rating_values %}
+                                            <label class="inline-flex items-center">
+                                                <input type="radio" class="form-radio" name="radio" value="{{ i }}" {% if review.rating == i %}checked{% endif %}>
+                                                <span class="ml-2">{{ i }}</span>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    <textarea name="body" class="text-sm text-gray-500">{{ review.body }}</textarea>
+                                    <button type="submit" class="button bg-blue-700">Modifier</button>
+                                </form>
+                                <button onclick="closeEditReviewModal('{{ review.id }}')">Fermer</button>
+                            </div>
+                            {% endfor %}
+
+
+
+                        </div>
+                        {% endfor %}
+
+
+                    </div>
+
+
+
+                </div>               
+          
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+ <!-- Scripts ================================================== -->
+    <script src="{% static 'assets/js/uikit.js' %}"></script>
+    <script src="{% static 'assets/js/index.js' %}"></script>
+
+
+    <footer class="bg-gray-200 text-black p-4 mt-4 border-t-0">
+		<div class="lg:mb-5 py-3 uk-link-reset">
+			<div class="flex flex-col items-center justify-between lg:flex-row max-w-6xl mx-auto lg:space-y-0 space-y-3">
+				<div class="flex space-x-2 text-gray-700 uppercase">
+					<a href="#"> À propos</a>
+					<a href="#"> Aide</a>
+					<a href="#"> Termes</a>
+					<a href="#"> Confidentialité</a>
+				</div>
+				<p class="capitalize"> © copyright 2023 by LITReview</p>
+			</div>
+		</div>
+	</footer>
+
+</body>
+
+
+</html>
