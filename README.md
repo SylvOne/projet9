@@ -30,3 +30,21 @@ Les personnes qui recherchent des articles et des livres intéressants à lire, 
 
 - Pour accéder au site, ouvrez un navigateur et inscrivez cette URL dans la barre d'adresse : `http://127.0.0.1:8000`
   
+Vous pouvez vous connecter directement avec les comptes suivants :
+
+- Compte administrateur :
+  - login : admin
+  - mdp : litreview
+
+- Comptes utilisateurs :
+  - login : Tom
+  - mdp : 1234
+
+  - login : Sam
+  - mdp : 1234
+  
+## Rapport Flake8-HTML
+
+1. Générez un rapport Flake8-HTML avec la commande suivante :
+`flake8 --exclude=.git,__pycache__,venv,migrations --max-line-length=119 --format=html --htmldir=flake8_rapport`.
+2. Ouvrez le fichier `flake8_rapport/index.html` pour voir le rapport.

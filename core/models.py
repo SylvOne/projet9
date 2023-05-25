@@ -1,11 +1,11 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 import uuid
 from datetime import datetime
 
 User = get_user_model()
+
 
 # Create your models here.
 class Profile(models.Model):
@@ -17,6 +17,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
@@ -30,6 +31,7 @@ class Post(models.Model):
 
     def __str__(self):
         return self.user
+
 
 class Review(models.Model):
     post = models.ForeignKey(to=Post, on_delete=models.CASCADE)
@@ -54,6 +56,7 @@ class LikePost(models.Model):
 
     def __str__(self):
         return self.username
+
 
 class FollowersCount(models.Model):
     follower = models.CharField(max_length=100)
