@@ -22,7 +22,8 @@ Les personnes qui recherchent des articles et des livres intéressants à lire, 
 
 ## Lancement du serveur
 
-- Vous pouvez maintenant lancer le serveur localement avec la commande `python manage.py runserver`.
+- Vous pouvez maintenant lancer le serveur localement<br>
+avec la commande `python manage.py runserver`.
   ATTENTION : Il faudra garder le terminal qui a servi au lancement du serveur, ouvert.
   (Vous pourrez stopper le serveur en effectuant un Ctrl + C dans ce même terminal)
 
@@ -32,7 +33,7 @@ Les personnes qui recherchent des articles et des livres intéressants à lire, 
   
 - Vous pouvez vous connecter directement avec les comptes suivants :
 
-  - Compte administrateur :
+  - Compte administrateur `http://127.0.0.1:8000/admin`:
     - login : admin
     - mdp : litreview
 
