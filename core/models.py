@@ -59,8 +59,8 @@ class LikePost(models.Model):
 
 
 class FollowersCount(models.Model):
-    follower = models.CharField(max_length=100)
-    user = models.CharField(max_length=100)
+    follower = models.ForeignKey(User, related_name='follower', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user
+        return self.user.username

@@ -17,7 +17,7 @@ def index(request):
     user_following_list = []
     feed = []
 
-    user_following = FollowersCount.objects.filter(follower=request.user.username)
+    user_following = FollowersCount.objects.filter(follower=request.user)
 
     for user in user_following:
         user_following_list.append(user.user)
@@ -157,9 +157,10 @@ def add_review(request):
         else:
             messages.info(request, 'Vous devez remplir les informations du livre')
 
-        # Si c'est une suppression à partir du profil de l'utilisateur on le redirige sur son profil
-        if request.POST['profile']:
-            return redirect('/profile/'+request.POST['profile'])
+        # Si c'est un ajout à partir du profil de l'utilisateur on le redirige sur son profil
+        profile = request.POST.get('profile')
+        if profile:
+            return redirect('/profile/'+profile)
         else:
             return redirect('/')
     else:
@@ -212,7 +213,8 @@ def update_post(request, post_id):
                 messages.info(request, 'Vous devez remplir les informations du livre')
 
         # Si c'est une suppression à partir du profil de l'utilisateur on le redirige sur son profil
-        if request.POST['profile']:
+        profile = request.POST.get('profile')
+        if profile:
             return redirect('/profile/'+request.POST['profile'])
         else:
             return redirect('/')
@@ -230,8 +232,9 @@ def delete_review(request, review_id):
         # Supprimer toutes les critiques
         review.delete()
         # Si c'est une suppression à partir du profil de l'utilisateur on le redirige sur son profil
-        if request.POST['userProfile']:
-            return redirect('/profile/' + request.POST['userProfile'])
+        userprofile = request.POST.get('userProfile')
+        if userprofile:
+            return redirect('/profile/' + userprofile)
         else:
             return redirect('/')
     else:
@@ -329,8 +332,8 @@ def profile(request, pk):
     user_profile = Profile.objects.get(user=user_object)
     user_posts = Post.objects.filter(user=pk)
     user_post_length = len(user_posts)
-    follower = request.user.username
-    user = pk
+    follower = request.user
+    user = user_object
 
     if FollowersCount.objects.filter(follower=follower, user=user).first():
         button_text = 'Ne plus suivre'
@@ -338,9 +341,9 @@ def profile(request, pk):
         button_text = 'Suivre'
 
     # nbr de personnes qui suivent l'utilisateur
-    user_followers = len(FollowersCount.objects.filter(user=pk))
+    user_followers = len(FollowersCount.objects.filter(user=user))
     # nbr de personnes que suit l'utilisateur
-    user_following = len(FollowersCount.objects.filter(follower=pk))
+    user_following = len(FollowersCount.objects.filter(follower=follower))
     # recupération des posts de l'utilisateur
     feed_list = list(user_posts)
     feed_list.sort(key=lambda x: x.created_at, reverse=True)
@@ -359,11 +362,9 @@ def profile(request, pk):
         }
     # recup des utilisateurs suivi
     # on commence par recupérer tous les objets FollowersCount de l'utilisateur connecté
-    followersCount_for_user_connected = FollowersCount.objects.filter(follower=request.user.username)
-    user_following_all = []
+    followersCount_for_user_connected = FollowersCount.objects.filter(follower=follower)
     # Pour chaque objet FollowersCount on recupere l'utilisateur et on l'ajoute à une liste
-    for follower_count in followersCount_for_user_connected:
-        user_following_all.append(User.objects.get(username=follower_count.user))
+    user_following_all = [fc.user for fc in followersCount_for_user_connected]
     # On s'assure que l'utilisateur lui meme n'est pas compté dans la liste des utilisateurs suivi
     current_user = User.objects.filter(username=request.user.username)
     final_following_list = [x for x in list(user_following_all) if (x not in list(current_user))]
@@ -399,17 +400,20 @@ def profile(request, pk):
 @login_required(login_url='signin')
 def follow(request):
     if request.method == 'POST':
-        follower = request.POST['follower']
-        user = request.POST['user']
+        follower_username = request.POST['follower']
+        user_username = request.POST['user']
+
+        follower = User.objects.get(username=follower_username)
+        user = User.objects.get(username=user_username)
 
         if FollowersCount.objects.filter(follower=follower, user=user).first():
             delete_follower = FollowersCount.objects.get(follower=follower, user=user)
             delete_follower.delete()
-            return redirect('/profile/'+user)
+            return redirect('/profile/'+user.username)
         else:
             new_follower = FollowersCount.objects.create(follower=follower, user=user)
             new_follower.save()
-            return redirect('/profile/'+user)
+            return redirect('/profile/'+user.username)
 
     else:
         return redirect('/')
