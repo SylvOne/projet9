@@ -264,7 +264,8 @@ def update_review(request, review_id):
             else:
                 messages.info(request, 'Vous devez remplir les informations requises')
 
-        if request.POST['profile']:
+        profile = request.POST.get('profile')
+        if profile is not None:
             return redirect('/profile/'+request.POST['profile'])
         else:
             return redirect('/')
