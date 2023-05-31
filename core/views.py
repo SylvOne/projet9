@@ -5,7 +5,9 @@ from django.contrib.auth.decorators import login_required
 from .models import Profile, Post, LikePost, FollowersCount, Review
 from itertools import chain
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 import os
+from .forms import CritiqueForm, RequestCritiqueForm
 
 
 # Vue gérant la page d'accueil après connexion
@@ -38,15 +40,12 @@ def index(request):
     for post in feed_list:
         reviews = Review.objects.filter(post=post).order_by('-time_created')
         has_user_reviewed = reviews.filter(user=request.user).exists()
-        for review in reviews:
-            review.rating_int = int(review.rating)
-            review.stars_remaining = 5 - review.rating_int
         post_reviews[post] = {
             'reviews': reviews,
             'has_user_reviewed': has_user_reviewed
         }
 
-    # Création d'une liste de valeurs pour l'utiliser dans le template
+    # Création d'une liste de valeurs pour l'utiliser dans le template pour la modification du rating
     rating_values = list(range(1, 6))
     return render(
         request,
@@ -63,20 +62,15 @@ def index(request):
 @login_required(login_url='signin')
 def upload(request):
     if request.method == 'POST':
-        if (
-            request.POST['title'] != ""
-            or request.POST['title'] != ' '
-            or request.POST['title_review'] != ''
-            or request.POST['title_review'] != ' '
-            or request.POST['radio'] != ''
-        ):
+        form = CritiqueForm(request.POST, request.FILES)
+        if form.is_valid():
             user = request.user.username
-            image = request.FILES.get('image_upload')
-            title_post = request.POST['title']
-            title_review = request.POST['title_review']
-            rating = request.POST['radio']
-            caption = request.POST['caption']
-            caption_review = request.POST['commentaire']
+            image = form.cleaned_data['image_upload']
+            title_post = form.cleaned_data['title']
+            title_review = form.cleaned_data['title_review']
+            rating = form.cleaned_data['radio']
+            caption = form.cleaned_data['caption']
+            caption_review = form.cleaned_data['commentaire']
 
             new_post = Post.objects.create(
                 user=user,
@@ -98,7 +92,7 @@ def upload(request):
             )
             new_review.save()
         else:
-            messages.info(request, 'Vous devez remplir les informations du livre')
+            messages.info(request, 'Vous devez remplir toutes les informations', extra_tags='error_post_and_critique')
         return redirect('/')
     else:
         return redirect('/')
@@ -108,11 +102,12 @@ def upload(request):
 @login_required(login_url='signin')
 def upload_request(request):
     if request.method == 'POST':
-        if request.POST['title'] != "" or request.POST['title'] != ' ':
+        form = RequestCritiqueForm(request.POST, request.FILES)
+        if form.is_valid():
             user = request.user.username
-            image = request.FILES.get('image_upload')
-            title_post = request.POST['title']
-            caption = request.POST['caption']
+            image = form.cleaned_data['image_upload']
+            title_post = form.cleaned_data['title']
+            caption = form.cleaned_data['caption']
 
             new_post = Post.objects.create(
                 user=user,
@@ -123,7 +118,7 @@ def upload_request(request):
             )
             new_post.save()
         else:
-            messages.info(request, 'Vous devez mettre un titre de livre')
+            messages.info(request, 'Vous devez remplir toutes les informations', extra_tags='error_critique')
         return redirect('/')
     else:
         return redirect('/')
@@ -289,10 +284,11 @@ def search(request):
         username_profile = []
         for users in username_object:
             username_profile.append(users.id)
+        # On récupère les profils des utilisateurs correspondants à la recherche
         for ids in username_profile:
             profile_lists = Profile.objects.filter(id_user=ids)
             username_profile_list.append(profile_lists)
-
+        # On concatene plusieurs listes pour en avoir qu'une seule
         username_profile_list = list(chain(*username_profile_list))
     return render(
         request,
@@ -328,92 +324,97 @@ def like_post(request):
 # Vue gérant la page profil d'un utilisateur
 @login_required(login_url='signin')
 def profile(request, pk):
-    user_object = User.objects.get(username=pk)
-    user_profile = Profile.objects.get(user=user_object)
-    user_posts = Post.objects.filter(user=pk)
-    user_post_length = len(user_posts)
-    follower = request.user
-    user = user_object
+    #user_object = User.objects.get(username=pk)
+    try:
+        user_object = get_object_or_404(User, username=pk)
+        user_profile = Profile.objects.get(user=user_object)
+        user_posts = Post.objects.filter(user=pk)
+        user_post_length = len(user_posts)
+        follower = request.user
+        user = user_object
 
-    if FollowersCount.objects.filter(follower=follower, user=user).first():
-        button_text = 'Ne plus suivre'
-    else:
-        button_text = 'Suivre'
+        if FollowersCount.objects.filter(follower=follower, user=user).first():
+            button_text = 'Ne plus suivre'
+        else:
+            button_text = 'Suivre'
 
-    # nbr de personnes qui suivent l'utilisateur
-    user_followers = len(FollowersCount.objects.filter(user=user))
-    # nbr de personnes que suit l'utilisateur
-    user_following = len(FollowersCount.objects.filter(follower=follower))
-    # recupération des posts de l'utilisateur
-    feed_list = list(user_posts)
-    feed_list.sort(key=lambda x: x.created_at, reverse=True)
-    # Récupérer les critiques associées à chaque post
-    # Créer un dictionnaire pour stocker les critiques associées à chaque poste
-    post_reviews = {}
-    for post in feed_list:
-        reviews = Review.objects.filter(post=post).order_by('-time_created')
-        has_user_reviewed = reviews.filter(user=request.user).exists()
-        for review in reviews:
-            review.rating_int = int(review.rating)
-            review.stars_remaining = 5 - review.rating_int
-        post_reviews[post] = {
-            'reviews': reviews,
-            'has_user_reviewed': has_user_reviewed
+        # nbr de personnes qui suivent l'utilisateur
+        user_followers = len(FollowersCount.objects.filter(user=user))
+        # nbr de personnes que suit l'utilisateur
+        user_following = len(FollowersCount.objects.filter(follower=follower))
+        # recupération des posts de l'utilisateur
+        feed_list = list(user_posts)
+        feed_list.sort(key=lambda x: x.created_at, reverse=True)
+        # Récupérer les critiques associées à chaque post
+        # Créer un dictionnaire pour stocker les critiques associées à chaque poste
+        post_reviews = {}
+        for post in feed_list:
+            reviews = Review.objects.filter(post=post).order_by('-time_created')
+            has_user_reviewed = reviews.filter(user=request.user).exists()
+            post_reviews[post] = {
+                'reviews': reviews,
+                'has_user_reviewed': has_user_reviewed
+            }
+        # recup des utilisateurs suivi
+        # on commence par recupérer tous les objets FollowersCount de l'utilisateur connecté
+        followersCount_for_user_connected = FollowersCount.objects.filter(follower=follower)
+        # Pour chaque objet FollowersCount on recupere l'utilisateur et on l'ajoute à une liste
+        user_following_all = [fc.user for fc in followersCount_for_user_connected]
+        # On s'assure que l'utilisateur lui meme n'est pas compté dans la liste des utilisateurs suivi
+        current_user = User.objects.filter(username=request.user.username)
+        final_following_list = [x for x in list(user_following_all) if (x not in list(current_user))]
+        username_profile = []
+        username_profile_list = []
+
+        for users in final_following_list:
+            username_profile.append(users.id)
+        for ids in username_profile:
+            profile_lists = Profile.objects.filter(id_user=ids)
+            username_profile_list.append(profile_lists)
+
+        followings_username_profile_list = list(chain(*username_profile_list))
+        # Création d'une liste de valeurs pour l'utiliser dans le template
+        rating_values = list(range(1, 6))
+
+        context = {
+            'user_object': user_object,
+            'user_profile': user_profile,
+            'user_posts': user_posts,
+            'user_post_length': user_post_length,
+            'button_text': button_text,
+            'user_followers': user_followers,
+            'user_following': user_following,
+            'post_reviews': post_reviews,
+            'rating_values': rating_values,
+            'followings_username_profile_list': followings_username_profile_list,
         }
-    # recup des utilisateurs suivi
-    # on commence par recupérer tous les objets FollowersCount de l'utilisateur connecté
-    followersCount_for_user_connected = FollowersCount.objects.filter(follower=follower)
-    # Pour chaque objet FollowersCount on recupere l'utilisateur et on l'ajoute à une liste
-    user_following_all = [fc.user for fc in followersCount_for_user_connected]
-    # On s'assure que l'utilisateur lui meme n'est pas compté dans la liste des utilisateurs suivi
-    current_user = User.objects.filter(username=request.user.username)
-    final_following_list = [x for x in list(user_following_all) if (x not in list(current_user))]
-    username_profile = []
-    username_profile_list = []
-
-    for users in final_following_list:
-        username_profile.append(users.id)
-    for ids in username_profile:
-        profile_lists = Profile.objects.filter(id_user=ids)
-        username_profile_list.append(profile_lists)
-
-    followings_username_profile_list = list(chain(*username_profile_list))
-    # Création d'une liste de valeurs pour l'utiliser dans le template
-    rating_values = list(range(1, 6))
-
-    context = {
-        'user_object': user_object,
-        'user_profile': user_profile,
-        'user_posts': user_posts,
-        'user_post_length': user_post_length,
-        'button_text': button_text,
-        'user_followers': user_followers,
-        'user_following': user_following,
-        'post_reviews': post_reviews,
-        'rating_values': rating_values,
-        'followings_username_profile_list': followings_username_profile_list,
-    }
-    return render(request, 'profile.html', context)
-
+        return render(request, 'profile.html', context)
+    except Http404:
+        messages.info(request, "Profil inexistant.", extra_tags='no_profile')
+        return redirect('/profile/'+request.user.username)
 
 # Vue gérant le suivi ou non d'un utilisateur
 @login_required(login_url='signin')
 def follow(request):
     if request.method == 'POST':
         follower_username = request.POST['follower']
-        user_username = request.POST['user']
+        # On verifie que l'utilisateur qui initie la demande est bien l'utilisateur connecté
+        if follower_username == request.user.username:
+            user_username = request.POST['user']
+            follower = User.objects.get(username=follower_username)
+            user = User.objects.get(username=user_username)
 
-        follower = User.objects.get(username=follower_username)
-        user = User.objects.get(username=user_username)
-
-        if FollowersCount.objects.filter(follower=follower, user=user).first():
-            delete_follower = FollowersCount.objects.get(follower=follower, user=user)
-            delete_follower.delete()
-            return redirect('/profile/'+user.username)
+            if FollowersCount.objects.filter(follower=follower, user=user).first():
+                delete_follower = FollowersCount.objects.get(follower=follower, user=user)
+                delete_follower.delete()
+                return redirect('/profile/'+user.username)
+            else:
+                new_follower = FollowersCount.objects.create(follower=follower, user=user)
+                new_follower.save()
+                return redirect('/profile/'+user.username)
         else:
-            new_follower = FollowersCount.objects.create(follower=follower, user=user)
-            new_follower.save()
-            return redirect('/profile/'+user.username)
+            messages.info(request, "Vous ne pouvez pas réaliser cette action pour quelqu'un d'autre", extra_tags='not_user_connected')
+            return redirect('/profile/'+request.user.username)
 
     else:
         return redirect('/')

@@ -22,10 +22,7 @@
 
 </head>
 <body>
-<div class="theme-layout">
-	
-	</div>
-	
+
 	<section>
 			<div class="feature-photo">
 				<figure><img src="{% static 'images/resources/baniere_profile.jpg' %}" alt=""></figure>
@@ -60,7 +57,6 @@
 					</div>
 				</form>
 
-
 				<div class="container-fluid">
 					<div class="row merged">
 						<div class="col-lg-2 col-sm-3">
@@ -90,12 +86,29 @@
 				{{user_profile.bio}}
 			</div>
 		</section>
-		
+		<div class="container m-auto">
+			<style>
+				h5{
+					color:red;
+					font-weight: bold;
+				}
+			</style>
+			{% for message in messages %}
+			{% if message.tags %}
+				{% if 'no_profile' in message.tags %}
+					<h5>{{message}}</h5>
+				{% endif %}
+			{% endif %}
+			{% if message.tags %}
+				{% if 'not_user_connected' in message.tags %}
+					<h5>{{message}}</h5>
+				{% endif %}
+			{% endif %}
+			{% endfor %}
+		</div>
 	<section>
 		<div class="container m-auto">
-
 			<div class="lg:flex justify-center lg:space-x-10 lg:space-y-0 space-y-5">
-
 				<!-- Affichage des posts de l'utilisateur -->
 				<div class="space-y-5 flex-shrink-0 lg:w-7/12">
 
