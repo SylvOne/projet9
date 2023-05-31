@@ -13,6 +13,7 @@ class CritiqueForm(forms.Form):
     )
     commentaire = forms.CharField(widget=forms.Textarea, required=True)
 
+
 class RequestCritiqueForm(forms.Form):
     image_upload = forms.ImageField(required=True)
     title = forms.CharField(max_length=100, required=True)

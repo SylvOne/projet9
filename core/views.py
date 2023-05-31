@@ -324,7 +324,6 @@ def like_post(request):
 # Vue gérant la page profil d'un utilisateur
 @login_required(login_url='signin')
 def profile(request, pk):
-    #user_object = User.objects.get(username=pk)
     try:
         user_object = get_object_or_404(User, username=pk)
         user_profile = Profile.objects.get(user=user_object)
@@ -393,6 +392,7 @@ def profile(request, pk):
         messages.info(request, "Profil inexistant.", extra_tags='no_profile')
         return redirect('/profile/'+request.user.username)
 
+
 # Vue gérant le suivi ou non d'un utilisateur
 @login_required(login_url='signin')
 def follow(request):
@@ -413,7 +413,10 @@ def follow(request):
                 new_follower.save()
                 return redirect('/profile/'+user.username)
         else:
-            messages.info(request, "Vous ne pouvez pas réaliser cette action pour quelqu'un d'autre", extra_tags='not_user_connected')
+            messages.info(
+                request,
+                "Vous ne pouvez pas réaliser cette action pour quelqu'un d'autre", extra_tags='not_user_connected'
+            )
             return redirect('/profile/'+request.user.username)
 
     else:
